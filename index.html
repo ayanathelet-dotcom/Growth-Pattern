@@ -1,0 +1,1016 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Growth Pattern — Web Development Agency</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,300;9..144,400;9..144,500;9..144,600&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:          #F8F7F4;
+      --bg-card:     #FFFFFF;
+      --bg-dark:     #0C0C0C;
+      --text-1:      #0C0C0C;
+      --text-2:      #555555;
+      --text-3:      #999999;
+      --accent:      #1B6B3A;
+      --accent-soft: #E8F5EE;
+      --border:      rgba(0,0,0,0.08);
+      --border-dark: rgba(255,255,255,0.10);
+      --ff-display:  'Fraunces', Georgia, serif;
+      --ff-sans:     'Plus Jakarta Sans', system-ui, sans-serif;
+      --radius:      14px;
+      --max-w:       1200px;
+      --ease:        cubic-bezier(0.22,1,0.36,1);
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: var(--ff-sans);
+      background: var(--bg);
+      color: var(--text-1);
+      -webkit-font-smoothing: antialiased;
+      overflow-x: hidden;
+    }
+
+    /* ── Custom Cursor ─────────────────────────────────── */
+    .cursor-dot, .cursor-ring {
+      position: fixed; top: 0; left: 0;
+      pointer-events: none; z-index: 9999;
+      border-radius: 50%; transform: translate(-50%,-50%);
+    }
+    .cursor-dot  { width: 6px; height: 6px; background: var(--accent); }
+    .cursor-ring { width: 36px; height: 36px; border: 1.5px solid rgba(27,107,58,0.4); transition: transform 0.12s var(--ease), width 0.3s var(--ease), height 0.3s var(--ease), opacity 0.3s; }
+    body:hover .cursor-ring { opacity: 1; }
+
+    /* ── Container ─────────────────────────────────────── */
+    .container { max-width: var(--max-w); margin: 0 auto; padding: 0 40px; }
+
+    /* ── HEADER ────────────────────────────────────────── */
+    header {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+      padding: 0 40px;
+      display: flex; align-items: center; justify-content: space-between;
+      height: 72px;
+      background: rgba(248,247,244,0.85);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border-bottom: 1px solid transparent;
+      transition: border-color 0.3s, box-shadow 0.3s;
+    }
+    header.scrolled {
+      border-color: var(--border);
+      box-shadow: 0 1px 30px rgba(0,0,0,0.06);
+    }
+
+    .logo {
+      font-family: var(--ff-display);
+      font-size: 20px;
+      font-weight: 500;
+      color: var(--text-1);
+      text-decoration: none;
+      letter-spacing: -0.3px;
+      display: flex; align-items: center; gap: 8px;
+    }
+    .logo-mark {
+      width: 28px; height: 28px;
+      background: var(--accent);
+      border-radius: 6px;
+      display: grid; place-items: center;
+    }
+    .logo-mark svg { width: 14px; height: 14px; fill: white; }
+
+    nav { display: flex; align-items: center; gap: 36px; }
+    nav a {
+      font-size: 14px; font-weight: 500;
+      color: var(--text-2); text-decoration: none;
+      letter-spacing: 0.01em;
+      transition: color 0.2s;
+      position: relative;
+    }
+    nav a::after {
+      content: ''; position: absolute; bottom: -2px; left: 0;
+      width: 0; height: 1.5px; background: var(--accent);
+      transition: width 0.3s var(--ease);
+    }
+    nav a:hover { color: var(--text-1); }
+    nav a:hover::after { width: 100%; }
+
+    .btn-nav {
+      padding: 10px 20px;
+      background: var(--text-1); color: white;
+      border-radius: 50px; font-size: 14px; font-weight: 600;
+      text-decoration: none; letter-spacing: 0.01em;
+      transition: background 0.2s, transform 0.2s var(--ease), box-shadow 0.2s;
+    }
+    .btn-nav:hover {
+      background: var(--accent);
+      transform: translateY(-1px);
+      box-shadow: 0 8px 24px rgba(27,107,58,0.25);
+    }
+
+    /* ── HERO ──────────────────────────────────────────── */
+    .hero {
+      min-height: 100vh;
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      text-align: center;
+      padding: 140px 40px 100px;
+      position: relative; overflow: hidden;
+    }
+
+    /* Animated background grid */
+    .hero-grid {
+      position: absolute; inset: 0; z-index: 0;
+      background-image:
+        linear-gradient(var(--border) 1px, transparent 1px),
+        linear-gradient(90deg, var(--border) 1px, transparent 1px);
+      background-size: 60px 60px;
+      mask-image: radial-gradient(ellipse 80% 70% at 50% 40%, black 40%, transparent 100%);
+      -webkit-mask-image: radial-gradient(ellipse 80% 70% at 50% 40%, black 40%, transparent 100%);
+    }
+
+    /* Soft gradient blob */
+    .hero-blob {
+      position: absolute; top: 10%; left: 50%; transform: translateX(-50%);
+      width: 700px; height: 500px;
+      background: radial-gradient(ellipse at center, rgba(27,107,58,0.08) 0%, transparent 70%);
+      pointer-events: none;
+    }
+
+    .hero-inner { position: relative; z-index: 1; max-width: 860px; }
+
+    .hero-badge {
+      display: inline-flex; align-items: center; gap: 8px;
+      padding: 6px 14px 6px 8px;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 50px;
+      font-size: 12px; font-weight: 600;
+      color: var(--text-2); letter-spacing: 0.06em; text-transform: uppercase;
+      margin-bottom: 36px;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+    }
+    .badge-dot {
+      width: 20px; height: 20px; border-radius: 50%;
+      background: var(--accent-soft);
+      display: grid; place-items: center;
+    }
+    .badge-dot::after {
+      content: ''; width: 6px; height: 6px; border-radius: 50%;
+      background: var(--accent);
+      animation: pulse 2s infinite;
+    }
+    @keyframes pulse {
+      0%,100% { transform: scale(1); opacity: 1; }
+      50%      { transform: scale(1.5); opacity: 0.6; }
+    }
+
+    .hero h1 {
+      font-family: var(--ff-display);
+      font-size: clamp(46px, 7vw, 88px);
+      font-weight: 400; line-height: 1.05;
+      letter-spacing: -0.03em; color: var(--text-1);
+      margin-bottom: 28px;
+    }
+    .hero h1 em { font-style: italic; color: var(--accent); }
+
+    .hero-sub {
+      font-size: clamp(16px, 2vw, 19px);
+      font-weight: 400; line-height: 1.65;
+      color: var(--text-2);
+      max-width: 560px; margin: 0 auto 48px;
+    }
+
+    .hero-cta { display: flex; align-items: center; justify-content: center; gap: 16px; flex-wrap: wrap; }
+
+    .btn-primary {
+      display: inline-flex; align-items: center; gap: 10px;
+      padding: 16px 30px;
+      background: var(--text-1); color: white;
+      border-radius: 50px; font-size: 15px; font-weight: 600;
+      text-decoration: none; letter-spacing: 0.01em;
+      transition: background 0.25s, transform 0.25s var(--ease), box-shadow 0.25s;
+    }
+    .btn-primary:hover {
+      background: var(--accent);
+      transform: translateY(-2px);
+      box-shadow: 0 12px 36px rgba(27,107,58,0.28);
+    }
+    .btn-primary svg { transition: transform 0.25s var(--ease); }
+    .btn-primary:hover svg { transform: translateX(3px); }
+
+    .btn-secondary {
+      display: inline-flex; align-items: center; gap: 8px;
+      padding: 16px 28px;
+      border: 1.5px solid var(--border);
+      background: var(--bg-card);
+      border-radius: 50px; font-size: 15px; font-weight: 500;
+      color: var(--text-1); text-decoration: none;
+      transition: border-color 0.2s, box-shadow 0.2s, transform 0.2s var(--ease);
+    }
+    .btn-secondary:hover {
+      border-color: var(--text-1);
+      transform: translateY(-2px);
+      box-shadow: 0 8px 24px rgba(0,0,0,0.08);
+    }
+
+    .hero-scroll {
+      margin-top: 80px;
+      display: flex; flex-direction: column; align-items: center; gap: 8px;
+      font-size: 12px; font-weight: 500;
+      color: var(--text-3); letter-spacing: 0.08em; text-transform: uppercase;
+    }
+    .scroll-line {
+      width: 1px; height: 48px;
+      background: linear-gradient(var(--text-3), transparent);
+      animation: scrollDown 2s infinite;
+    }
+    @keyframes scrollDown {
+      0%   { transform: scaleY(0); transform-origin: top; opacity: 0; }
+      50%  { transform: scaleY(1); transform-origin: top; opacity: 1; }
+      100% { transform: scaleY(1); transform-origin: bottom; opacity: 0; }
+    }
+
+    /* ── LOGOS / TRUST BAR ─────────────────────────────── */
+    .trust-bar {
+      padding: 40px 0;
+      border-top: 1px solid var(--border);
+      border-bottom: 1px solid var(--border);
+      background: var(--bg-card);
+    }
+    .trust-bar-inner {
+      display: flex; align-items: center; justify-content: center;
+      gap: 12px; flex-wrap: wrap;
+    }
+    .trust-label {
+      font-size: 12px; font-weight: 600; color: var(--text-3);
+      letter-spacing: 0.08em; text-transform: uppercase;
+      margin-right: 20px;
+    }
+    .trust-stats {
+      display: flex; align-items: center; gap: 48px;
+    }
+    .stat-item { text-align: center; }
+    .stat-num {
+      display: block;
+      font-family: var(--ff-display);
+      font-size: 28px; font-weight: 500;
+      color: var(--text-1); letter-spacing: -0.03em;
+    }
+    .stat-label {
+      display: block;
+      font-size: 12px; font-weight: 500;
+      color: var(--text-3); margin-top: 2px;
+    }
+    .trust-divider {
+      width: 1px; height: 40px;
+      background: var(--border);
+    }
+
+    /* ── SECTION COMMONS ───────────────────────────────── */
+    section { padding: 120px 0; }
+    .section-label {
+      display: inline-flex; align-items: center; gap: 8px;
+      font-size: 12px; font-weight: 700;
+      letter-spacing: 0.1em; text-transform: uppercase;
+      color: var(--accent); margin-bottom: 20px;
+    }
+    .section-label::before {
+      content: ''; width: 20px; height: 2px; background: var(--accent);
+    }
+    .section-title {
+      font-family: var(--ff-display);
+      font-size: clamp(34px, 4.5vw, 56px);
+      font-weight: 400; line-height: 1.1;
+      letter-spacing: -0.025em; color: var(--text-1);
+    }
+    .section-sub {
+      font-size: 17px; font-weight: 400; line-height: 1.7;
+      color: var(--text-2); max-width: 520px;
+    }
+
+    /* ── SERVICES ──────────────────────────────────────── */
+    #services { background: var(--bg); }
+    .services-head {
+      display: flex; justify-content: space-between; align-items: flex-end;
+      gap: 40px; margin-bottom: 72px;
+    }
+
+    .services-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 2px;
+    }
+
+    .service-card {
+      background: var(--bg-card);
+      padding: 44px 40px;
+      position: relative; overflow: hidden;
+      cursor: pointer;
+      transition: background 0.3s;
+    }
+    .service-card::before {
+      content: ''; position: absolute; inset: 0;
+      background: linear-gradient(135deg, var(--accent-soft) 0%, transparent 60%);
+      opacity: 0; transition: opacity 0.4s var(--ease);
+    }
+    .service-card:hover { background: #FCFCFC; }
+    .service-card:hover::before { opacity: 1; }
+
+    .service-num {
+      font-family: var(--ff-display);
+      font-size: 13px; font-weight: 500;
+      color: var(--text-3); margin-bottom: 32px;
+      display: block;
+    }
+    .service-icon {
+      width: 48px; height: 48px;
+      background: var(--accent-soft);
+      border-radius: 12px;
+      display: grid; place-items: center;
+      margin-bottom: 24px;
+      transition: background 0.3s, transform 0.3s var(--ease);
+    }
+    .service-card:hover .service-icon {
+      background: var(--accent);
+      transform: scale(1.05);
+    }
+    .service-icon svg { width: 22px; height: 22px; stroke: var(--accent); transition: stroke 0.3s; }
+    .service-card:hover .service-icon svg { stroke: white; }
+
+    .service-name {
+      font-family: var(--ff-display);
+      font-size: 22px; font-weight: 500;
+      letter-spacing: -0.02em; color: var(--text-1);
+      margin-bottom: 12px;
+    }
+    .service-desc {
+      font-size: 14px; line-height: 1.7;
+      color: var(--text-2); margin-bottom: 32px;
+    }
+    .btn-learn {
+      display: inline-flex; align-items: center; gap: 8px;
+      font-size: 13px; font-weight: 600;
+      color: var(--accent); text-decoration: none;
+      letter-spacing: 0.01em;
+      transition: gap 0.3s var(--ease);
+    }
+    .btn-learn:hover { gap: 14px; }
+    .btn-learn .arrow {
+      width: 20px; height: 20px;
+      background: var(--accent-soft);
+      border-radius: 50%;
+      display: grid; place-items: center;
+      transition: background 0.3s, transform 0.3s var(--ease);
+    }
+    .btn-learn:hover .arrow {
+      background: var(--accent);
+      transform: rotate(-40deg);
+    }
+    .btn-learn .arrow svg { width: 10px; height: 10px; stroke: var(--accent); transition: stroke 0.3s; }
+    .btn-learn:hover .arrow svg { stroke: white; }
+
+    /* ── ABOUT ─────────────────────────────────────────── */
+    #about { background: var(--bg-dark); color: white; }
+    .about-inner {
+      display: grid; grid-template-columns: 1fr 1fr;
+      gap: 100px; align-items: center;
+    }
+    .about-left .section-label { color: #4ADE80; }
+    .about-left .section-label::before { background: #4ADE80; }
+    .about-left .section-title { color: white; margin-bottom: 24px; }
+    .about-left .section-sub { color: rgba(255,255,255,0.55); margin-bottom: 40px; }
+
+    .btn-learn-dark {
+      display: inline-flex; align-items: center; gap: 10px;
+      font-size: 15px; font-weight: 600;
+      color: white; text-decoration: none;
+      padding-bottom: 4px;
+      border-bottom: 1.5px solid rgba(255,255,255,0.3);
+      transition: border-color 0.2s, gap 0.3s var(--ease);
+    }
+    .btn-learn-dark:hover { border-color: #4ADE80; gap: 16px; }
+    .btn-learn-dark svg { stroke: white; transition: stroke 0.2s; }
+    .btn-learn-dark:hover svg { stroke: #4ADE80; }
+
+    .about-right { display: grid; grid-template-columns: 1fr 1fr; gap: 2px; }
+    .about-stat {
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(255,255,255,0.07);
+      border-radius: var(--radius);
+      padding: 36px 32px;
+      position: relative; overflow: hidden;
+    }
+    .about-stat::after {
+      content: ''; position: absolute; top: 0; left: 0;
+      width: 40px; height: 2px; background: #4ADE80;
+    }
+    .about-stat-num {
+      font-family: var(--ff-display);
+      font-size: 44px; font-weight: 400;
+      letter-spacing: -0.04em; color: white;
+      line-height: 1; margin-bottom: 8px;
+    }
+    .about-stat-num span { color: #4ADE80; }
+    .about-stat-label {
+      font-size: 13px; font-weight: 500;
+      color: rgba(255,255,255,0.45); line-height: 1.5;
+    }
+
+    /* ── GET STARTED ───────────────────────────────────── */
+    #get-started {
+      background: var(--bg);
+      padding: 120px 0;
+    }
+    .get-started-box {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 24px;
+      padding: 96px 80px;
+      text-align: center;
+      position: relative; overflow: hidden;
+    }
+    .get-started-box::before {
+      content: ''; position: absolute; inset: 0;
+      background: radial-gradient(ellipse 60% 60% at 50% 0%, rgba(27,107,58,0.07) 0%, transparent 70%);
+    }
+    .get-started-box .section-label { justify-content: center; }
+    .get-started-box .section-title {
+      margin: 0 auto 24px;
+      max-width: 620px;
+    }
+    .get-started-box .section-title em { font-style: italic; color: var(--accent); }
+    .get-started-sub {
+      font-size: 17px; color: var(--text-2);
+      max-width: 480px; margin: 0 auto 48px;
+      line-height: 1.7;
+    }
+    .cta-group { display: flex; flex-direction: column; align-items: center; gap: 16px; }
+    .cta-note {
+      font-size: 13px; color: var(--text-3);
+      display: flex; align-items: center; gap: 6px;
+    }
+    .cta-note svg { stroke: var(--text-3); }
+
+    /* ── FOOTER ────────────────────────────────────────── */
+    footer {
+      background: var(--bg-dark); color: rgba(255,255,255,0.5);
+      padding: 72px 0 40px;
+    }
+    .footer-top {
+      display: flex; justify-content: space-between;
+      gap: 60px; margin-bottom: 60px;
+    }
+    .footer-brand { max-width: 300px; }
+    .footer-brand .logo { color: white; margin-bottom: 16px; display: flex; }
+    .footer-tagline { font-size: 14px; line-height: 1.7; }
+
+    .footer-links { display: grid; grid-template-columns: repeat(3, 1fr); gap: 40px; }
+    .footer-col h4 {
+      font-size: 13px; font-weight: 700;
+      color: white; letter-spacing: 0.06em;
+      text-transform: uppercase; margin-bottom: 20px;
+    }
+    .footer-col a {
+      display: block; font-size: 14px;
+      color: rgba(255,255,255,0.45); text-decoration: none;
+      margin-bottom: 12px;
+      transition: color 0.2s;
+    }
+    .footer-col a:hover { color: white; }
+
+    .footer-bottom {
+      display: flex; justify-content: space-between; align-items: center;
+      padding-top: 32px;
+      border-top: 1px solid rgba(255,255,255,0.07);
+      font-size: 13px;
+    }
+    .footer-social { display: flex; gap: 16px; }
+    .footer-social a {
+      width: 36px; height: 36px;
+      border: 1px solid rgba(255,255,255,0.12);
+      border-radius: 50%;
+      display: grid; place-items: center;
+      color: rgba(255,255,255,0.5); text-decoration: none;
+      transition: border-color 0.2s, color 0.2s, background 0.2s;
+    }
+    .footer-social a:hover {
+      border-color: rgba(255,255,255,0.3);
+      color: white;
+      background: rgba(255,255,255,0.06);
+    }
+    .footer-social svg { width: 15px; height: 15px; stroke: currentColor; fill: none; stroke-width: 1.8; }
+
+    /* ── REVEAL SETUP ──────────────────────────────────── */
+    .reveal { opacity: 0; }
+
+    /* ── RESPONSIVE ────────────────────────────────────── */
+    @media (max-width: 900px) {
+      header { padding: 0 24px; }
+      .container { padding: 0 24px; }
+      nav { display: none; }
+      .services-grid { grid-template-columns: 1fr 1fr; }
+      .about-inner { grid-template-columns: 1fr; gap: 60px; }
+      .about-right { grid-template-columns: 1fr 1fr; }
+      .footer-top { flex-direction: column; }
+      .footer-links { grid-template-columns: 1fr 1fr; }
+      .get-started-box { padding: 60px 32px; }
+      .services-head { flex-direction: column; align-items: flex-start; }
+    }
+    @media (max-width: 600px) {
+      .services-grid { grid-template-columns: 1fr; }
+      .about-right { grid-template-columns: 1fr; }
+      .footer-links { grid-template-columns: 1fr; }
+      .trust-stats { gap: 28px; }
+      .trust-divider { display: none; }
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- Custom Cursor -->
+  <div class="cursor-dot" id="cursorDot"></div>
+  <div class="cursor-ring" id="cursorRing"></div>
+
+  <!-- ════════════════════════════════ HEADER ══ -->
+  <header id="header">
+    <a href="#" class="logo">
+      <div class="logo-mark">
+        <svg viewBox="0 0 14 14"><path d="M2 10 L7 4 L12 10" stroke="white" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </div>
+      Growth Pattern
+    </a>
+
+    <nav>
+      <a href="#services">Services</a>
+      <a href="#work">Work</a>
+      <a href="#about">About</a>
+      <a href="#get-started">Contact</a>
+    </nav>
+
+    <a href="#get-started" class="btn-nav">Get Started</a>
+  </header>
+
+  <!-- ════════════════════════════════ HERO ════ -->
+  <section class="hero" id="home">
+    <div class="hero-grid"></div>
+    <div class="hero-blob"></div>
+
+    <div class="hero-inner">
+      <div class="hero-badge reveal">
+        <div class="badge-dot"></div>
+        Web Development Agency
+      </div>
+
+      <h1 class="reveal">
+        We Design Websites<br>That <em>Drive Growth</em>
+      </h1>
+
+      <p class="hero-sub reveal">
+        From pixel-perfect UI to scalable full-stack products — Growth Pattern turns your vision into a high-performance digital experience.
+      </p>
+
+      <div class="hero-cta reveal">
+        <a href="#get-started" class="btn-primary">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="3" width="14" height="10" rx="2"/><path d="M1 6h14"/><path d="M5 10h2"/></svg>
+          Schedule 30-Min Call
+        </a>
+        <a href="#services" class="btn-secondary">
+          Explore Services
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 8h10M9 4l4 4-4 4"/></svg>
+        </a>
+      </div>
+
+      <div class="hero-scroll reveal">
+        <span>Scroll</span>
+        <div class="scroll-line"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ════════════════════════════════ TRUST BAR ═ -->
+  <div class="trust-bar">
+    <div class="trust-bar-inner">
+      <span class="trust-label">Trusted by companies worldwide</span>
+      <div class="trust-stats">
+        <div class="stat-item reveal">
+          <span class="stat-num" data-count="85">0</span>
+          <span class="stat-label">Projects Delivered</span>
+        </div>
+        <div class="trust-divider"></div>
+        <div class="stat-item reveal">
+          <span class="stat-num" data-count="98">0</span>
+          <span class="stat-label">% Client Satisfaction</span>
+        </div>
+        <div class="trust-divider"></div>
+        <div class="stat-item reveal">
+          <span class="stat-num" data-count="6">0</span>
+          <span class="stat-label">Years of Experience</span>
+        </div>
+        <div class="trust-divider"></div>
+        <div class="stat-item reveal">
+          <span class="stat-num" data-count="12">0</span>
+          <span class="stat-label">Industry Awards</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ════════════════════════════════ SERVICES ═ -->
+  <section id="services">
+    <div class="container">
+      <div class="services-head">
+        <div>
+          <div class="section-label reveal">Our Services</div>
+          <h2 class="section-title reveal">Everything you need to<br>build online.</h2>
+        </div>
+        <p class="section-sub reveal">End-to-end web solutions — crafted with intention, built for performance, and designed to scale with your business.</p>
+      </div>
+
+      <div class="services-grid">
+
+        <!-- 1 -->
+        <div class="service-card reveal">
+          <span class="service-num">01</span>
+          <div class="service-icon">
+            <svg fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24">
+              <rect x="3" y="3" width="18" height="15" rx="2"/><path d="M3 8h18M8 21h8M12 18v3"/>
+            </svg>
+          </div>
+          <h3 class="service-name">Website Development</h3>
+          <p class="service-desc">Fast, responsive, and beautifully crafted websites built to convert visitors into loyal customers.</p>
+          <a href="#" class="btn-learn">
+            Learn more
+            <div class="arrow">
+              <svg viewBox="0 0 10 10" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 8L8 2M8 2H3M8 2V7"/></svg>
+            </div>
+          </a>
+        </div>
+
+        <!-- 2 -->
+        <div class="service-card reveal">
+          <span class="service-num">02</span>
+          <div class="service-icon">
+            <svg fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24">
+              <path d="M12 20h9M16.5 3.5a2.12 2.12 0 013 3L7 19l-4 1 1-4L16.5 3.5z"/>
+            </svg>
+          </div>
+          <h3 class="service-name">UI & UX Design</h3>
+          <p class="service-desc">Intuitive interfaces and delightful experiences rooted in user research, tested and refined to perfection.</p>
+          <a href="#" class="btn-learn">
+            Learn more
+            <div class="arrow">
+              <svg viewBox="0 0 10 10" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 8L8 2M8 2H3M8 2V7"/></svg>
+            </div>
+          </a>
+        </div>
+
+        <!-- 3 -->
+        <div class="service-card reveal">
+          <span class="service-num">03</span>
+          <div class="service-icon">
+            <svg fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24">
+              <path d="M21 21l-4.35-4.35M17 11A6 6 0 111 11a6 6 0 0116 0z"/><path d="M11 8v6M8 11h6"/>
+            </svg>
+          </div>
+          <h3 class="service-name">SEO Ranking</h3>
+          <p class="service-desc">Climb search rankings with technical SEO, content strategy, and data-driven optimisation that delivers lasting results.</p>
+          <a href="#" class="btn-learn">
+            Learn more
+            <div class="arrow">
+              <svg viewBox="0 0 10 10" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 8L8 2M8 2H3M8 2V7"/></svg>
+            </div>
+          </a>
+        </div>
+
+        <!-- 4 -->
+        <div class="service-card reveal">
+          <span class="service-num">04</span>
+          <div class="service-icon">
+            <svg fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24">
+              <path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4zM3 6h18"/><path d="M16 10a4 4 0 01-8 0"/>
+            </svg>
+          </div>
+          <h3 class="service-name">Scalable E-Commerce</h3>
+          <p class="service-desc">High-performance online stores engineered to handle growth — from launch to millions of transactions with ease.</p>
+          <a href="#" class="btn-learn">
+            Learn more
+            <div class="arrow">
+              <svg viewBox="0 0 10 10" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 8L8 2M8 2H3M8 2V7"/></svg>
+            </div>
+          </a>
+        </div>
+
+        <!-- 5 -->
+        <div class="service-card reveal">
+          <span class="service-num">05</span>
+          <div class="service-icon">
+            <svg fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24">
+              <polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/>
+            </svg>
+          </div>
+          <h3 class="service-name">Full Stack Websites & Apps</h3>
+          <p class="service-desc">End-to-end product development — from database architecture to polished front-ends and mobile applications.</p>
+          <a href="#" class="btn-learn">
+            Learn more
+            <div class="arrow">
+              <svg viewBox="0 0 10 10" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 8L8 2M8 2H3M8 2V7"/></svg>
+            </div>
+          </a>
+        </div>
+
+        <!-- 6 -->
+        <div class="service-card reveal">
+          <span class="service-num">06</span>
+          <div class="service-icon">
+            <svg fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24">
+              <path d="M18 20V10M12 20V4M6 20v-6"/>
+            </svg>
+          </div>
+          <h3 class="service-name">Analytics & Marketing</h3>
+          <p class="service-desc">Deep-dive analytics dashboards and actionable marketing insights that help you make smarter decisions, faster.</p>
+          <a href="#" class="btn-learn">
+            Learn more
+            <div class="arrow">
+              <svg viewBox="0 0 10 10" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 8L8 2M8 2H3M8 2V7"/></svg>
+            </div>
+          </a>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- ════════════════════════════════ ABOUT ═══ -->
+  <section id="about">
+    <div class="container">
+      <div class="about-inner">
+
+        <div class="about-left">
+          <div class="section-label reveal">About Us</div>
+          <h2 class="section-title reveal">
+            A studio obsessed<br>with your growth.
+          </h2>
+          <p class="section-sub reveal">
+            Growth Pattern is a full-service digital agency founded on a simple belief — beautiful products and measurable results are not mutually exclusive. We bring craft and strategy together for brands that want to grow.
+          </p>
+          <a href="#" class="btn-learn-dark reveal">
+            Learn more about us
+            <svg width="18" height="18" viewBox="0 0 18 18" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9h12M11 5l4 4-4 4"/></svg>
+          </a>
+        </div>
+
+        <div class="about-right">
+          <div class="about-stat reveal">
+            <div class="about-stat-num">85<span>+</span></div>
+            <div class="about-stat-label">Projects completed across 14 industries</div>
+          </div>
+          <div class="about-stat reveal">
+            <div class="about-stat-num">98<span>%</span></div>
+            <div class="about-stat-label">Client satisfaction and retention rate</div>
+          </div>
+          <div class="about-stat reveal">
+            <div class="about-stat-num">6<span>+</span></div>
+            <div class="about-stat-label">Years crafting digital experiences</div>
+          </div>
+          <div class="about-stat reveal">
+            <div class="about-stat-num">3<span>×</span></div>
+            <div class="about-stat-label">Average ROI increase for our clients</div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- ════════════════════════════════ GET STARTED ═ -->
+  <section id="get-started">
+    <div class="container">
+      <div class="get-started-box">
+        <div class="section-label reveal">Ready to Grow?</div>
+        <h2 class="section-title reveal">
+          Let's build something<br><em>remarkable</em> together.
+        </h2>
+        <p class="get-started-sub reveal">
+          Whether you have a clear vision or just an idea, we'll help you shape it into a product that performs.
+        </p>
+        <div class="cta-group reveal">
+          <a href="mailto:hello@growthpattern.co" class="btn-primary">
+            Get Started
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 8h10M9 4l4 4-4 4"/></svg>
+          </a>
+          <p class="cta-note">
+            <svg width="15" height="15" viewBox="0 0 15 15" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="7.5" cy="7.5" r="6"/><path d="M7.5 5v3l2 1"/></svg>
+            Schedule a free 30-minute discovery call — no commitment, just conversation.
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ════════════════════════════════ FOOTER ══ -->
+  <footer>
+    <div class="container">
+      <div class="footer-top">
+
+        <div class="footer-brand">
+          <a href="#" class="logo">
+            <div class="logo-mark">
+              <svg viewBox="0 0 14 14"><path d="M2 10 L7 4 L12 10" stroke="white" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </div>
+            Growth Pattern
+          </a>
+          <p class="footer-tagline">We design and build digital products that help businesses grow — with purpose and precision.</p>
+        </div>
+
+        <div class="footer-links">
+          <div class="footer-col">
+            <h4>Services</h4>
+            <a href="#">Website Development</a>
+            <a href="#">UI & UX Design</a>
+            <a href="#">SEO Ranking</a>
+            <a href="#">E-Commerce</a>
+            <a href="#">Full Stack Apps</a>
+            <a href="#">Analytics</a>
+          </div>
+          <div class="footer-col">
+            <h4>Company</h4>
+            <a href="#about">About Us</a>
+            <a href="#">Our Work</a>
+            <a href="#">Case Studies</a>
+            <a href="#">Blog</a>
+            <a href="#">Careers</a>
+          </div>
+          <div class="footer-col">
+            <h4>Contact</h4>
+            <a href="mailto:hello@growthpattern.co">hello@growthpattern.co</a>
+            <a href="tel:+1234567890">+1 (234) 567-890</a>
+            <a href="#">Schedule a Call</a>
+            <a href="#">LinkedIn</a>
+            <a href="#">Twitter / X</a>
+          </div>
+        </div>
+
+      </div>
+
+      <div class="footer-bottom">
+        <span>© 2025 Growth Pattern. All rights reserved.</span>
+        <div class="footer-social">
+          <!-- Twitter/X -->
+          <a href="#" aria-label="Twitter">
+            <svg viewBox="0 0 24 24"><path d="M18 6L6 18M6 6l12 12"/></svg>
+          </a>
+          <!-- LinkedIn -->
+          <a href="#" aria-label="LinkedIn">
+            <svg viewBox="0 0 24 24"><rect x="2" y="2" width="20" height="20" rx="4"/><path d="M7 10v7M7 7v.01M11 17v-4a2 2 0 014 0v4M11 10v7"/></svg>
+          </a>
+          <!-- Instagram -->
+          <a href="#" aria-label="Instagram">
+            <svg viewBox="0 0 24 24"><rect x="2" y="2" width="20" height="20" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="1" fill="currentColor" stroke="none"/></svg>
+          </a>
+          <!-- Dribbble -->
+          <a href="#" aria-label="Dribbble">
+            <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M8.5 2.6c2.2 3.4 4.1 7 5.5 10.8M21.4 10c-3.4-.3-6.8.1-9.9 1.2M3 12c3.2 1 6.8 1.3 10.2.8"/></svg>
+          </a>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <!-- ════════════════════════════════ SCRIPTS ═ -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
+
+  <script>
+  (function () {
+    "use strict";
+
+    gsap.registerPlugin(ScrollTrigger);
+
+    /* ── Cursor ──────────────────────────────── */
+    const dot  = document.getElementById('cursorDot');
+    const ring = document.getElementById('cursorRing');
+
+    if (window.matchMedia('(pointer:fine)').matches) {
+      document.addEventListener('mousemove', (e) => {
+        gsap.to(dot,  { x: e.clientX, y: e.clientY, duration: 0 });
+        gsap.to(ring, { x: e.clientX, y: e.clientY, duration: 0.18, ease: 'power2.out' });
+      });
+      document.querySelectorAll('a, button, .service-card').forEach(el => {
+        el.addEventListener('mouseenter', () =>
+          gsap.to(ring, { scale: 1.6, opacity: 0.6, duration: 0.25 }));
+        el.addEventListener('mouseleave', () =>
+          gsap.to(ring, { scale: 1, opacity: 1, duration: 0.25 }));
+      });
+    } else {
+      dot.style.display  = 'none';
+      ring.style.display = 'none';
+    }
+
+    /* ── Header scroll ───────────────────────── */
+    const header = document.getElementById('header');
+    window.addEventListener('scroll', () => {
+      header.classList.toggle('scrolled', window.scrollY > 40);
+    }, { passive: true });
+
+    /* ── Hero load animation ─────────────────── */
+    const heroTl = gsap.timeline({ defaults: { ease: 'power4.out' } });
+    heroTl
+      .fromTo('header', { y: -60, opacity: 0 }, { y: 0, opacity: 1, duration: 0.8 })
+      .fromTo('.hero-badge',  { y: 30, opacity: 0 }, { y: 0, opacity: 1, duration: 0.7 }, '-=0.3')
+      .fromTo('.hero h1',     { y: 60, opacity: 0 }, { y: 0, opacity: 1, duration: 0.9 }, '-=0.5')
+      .fromTo('.hero-sub',    { y: 40, opacity: 0 }, { y: 0, opacity: 1, duration: 0.8 }, '-=0.6')
+      .fromTo('.hero-cta',    { y: 30, opacity: 0 }, { y: 0, opacity: 1, duration: 0.7 }, '-=0.55')
+      .fromTo('.hero-scroll', { y: 20, opacity: 0 }, { y: 0, opacity: 1, duration: 0.6 }, '-=0.4')
+      .fromTo('.hero-grid',   { opacity: 0 },        { opacity: 1, duration: 1.2 }, 0.1);
+
+    /* ── Scroll reveals ──────────────────────── */
+    function revealEl(el, extra = {}) {
+      gsap.fromTo(el,
+        { y: 40, opacity: 0 },
+        {
+          y: 0, opacity: 1, duration: 0.85, ease: 'power3.out',
+          scrollTrigger: { trigger: el, start: 'top 88%', once: true },
+          ...extra
+        }
+      );
+    }
+
+    // Generic reveal for all .reveal elements (excluding hero ones already animated)
+    document.querySelectorAll('.reveal').forEach((el) => {
+      if (el.closest('.hero')) return; // skip hero, handled separately
+      revealEl(el);
+    });
+
+    // Service cards staggered
+    gsap.fromTo('.service-card',
+      { y: 50, opacity: 0 },
+      {
+        y: 0, opacity: 1, duration: 0.75, ease: 'power3.out', stagger: 0.1,
+        scrollTrigger: { trigger: '.services-grid', start: 'top 82%', once: true }
+      }
+    );
+
+    // About stats staggered
+    gsap.fromTo('.about-stat',
+      { y: 40, opacity: 0, scale: 0.96 },
+      {
+        y: 0, opacity: 1, scale: 1, duration: 0.7, ease: 'power3.out', stagger: 0.12,
+        scrollTrigger: { trigger: '.about-right', start: 'top 82%', once: true }
+      }
+    );
+
+    // Get started box
+    gsap.fromTo('.get-started-box',
+      { y: 50, opacity: 0, scale: 0.97 },
+      {
+        y: 0, opacity: 1, scale: 1, duration: 0.9, ease: 'power3.out',
+        scrollTrigger: { trigger: '.get-started-box', start: 'top 85%', once: true }
+      }
+    );
+
+    /* ── Counter animation ───────────────────── */
+    document.querySelectorAll('.stat-num[data-count]').forEach(el => {
+      const target = parseInt(el.getAttribute('data-count'));
+      gsap.fromTo({ val: 0 }, { val: target },
+        {
+          duration: 1.8, ease: 'power2.out',
+          onUpdate: function () { el.textContent = Math.round(this.targets()[0].val); },
+          scrollTrigger: { trigger: el, start: 'top 90%', once: true }
+        }
+      );
+    });
+
+    /* ── Hero blob parallax ──────────────────── */
+    gsap.to('.hero-blob', {
+      y: -120,
+      ease: 'none',
+      scrollTrigger: {
+        trigger: '.hero',
+        start: 'top top',
+        end: 'bottom top',
+        scrub: 1.5
+      }
+    });
+
+    /* ── Footer reveal ───────────────────────── */
+    gsap.fromTo('footer .footer-top',
+      { y: 40, opacity: 0 },
+      {
+        y: 0, opacity: 1, duration: 0.9, ease: 'power3.out',
+        scrollTrigger: { trigger: 'footer', start: 'top 88%', once: true }
+      }
+    );
+
+  })();
+  </script>
+
+</body>
+</html>
